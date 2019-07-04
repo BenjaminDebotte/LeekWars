@@ -1,0 +1,491 @@
+/* 	IA v3 - Level 38
+	Armes : Magnum + Axe
+	Chip : 	Armor & Shield
+			Cure & Vaccine
+			Spark & Lighting & Stalactite
+			Pony Bulb
+*/
+
+
+
+/* Variables globales au combat */
+global FIRST_WEAPON = WEAPON_MAGNUM; global SECONDARY_WEAPON = WEAPON_AXE;
+global ENEMY = null;
+global this = getLeek();
+global CURRENT_CHIP = CHIP_SPARK;
+global CHIP_MIN_RANGE = getChipMinRange(CURRENT_CHIP);
+global CHIP_MAX_RANGE = getChipMaxRange(CURRENT_CHIP);
+global BULB = null;
+global BERSERK_TURN = MAX_TURNS - 20;
+global BERSERK_MODE = false;
+global FRIENDS = ["HomocycLeek", "Philibert", "Guiatch"];
+
+global HasAttacked = false;
+
+include("functions");
+include ("IA Bulbe");
+
+/* Initialisation */
+Init();
+
+
+/* Fonctions */
+function Init() {
+	if(getWeapon() == null){
+		setWeapon(FIRST_WEAPON);
+	}
+	HasAttacked = false;
+
+	BERSERK_MODE = (getTurn() >= BERSERK_TURN && getFightContext() == FIGHT_CONTEXT_TOURNAMENT ? true : false);
+}
+
+function useChip2(Chip, leek) {
+	var status;
+
+	var chipName = getChipName(Chip);
+	if(not inArray(getChips(),Chip)){
+		debugE("Utilisation d'un CHIP qui n'est pas équipé. " + chipName);
+		return;
+	}
+
+	if(getTP() < getChipCost(Chip))
+		return false;
+
+	if(not verifyLoS(getCell(), getCell(leek), isInlineChip(Chip)))
+		return;
+
+	if(leek == null)
+		return;
+
+	if(getChipCooldown(Chip) != 0){
+		return;
+	}
+	var dist = getCellDistance(getCell(), getCell(leek));
+	if(dist > Stuffs[Chip]["scope"]["max"] || dist < Stuffs[Chip]["scope"]["min"]) {
+		debugE("Tentative d'utilisation du chip hors-portée. Arrêt.");
+		return;
+	}
+	status = useChip(Chip, leek);
+	if(status != USE_SUCCESS && status != USE_CRITICAL) {
+		debugE("Erreur lors de l'utilisation du chip " + getChipName(Chip) + "  " + status);
+		return;
+	}
+}
+
+function autoUseChips(chip) {
+	var chipName = getChipName(chip);
+	if(not inArray(getChips(),chip)){
+		debugE("Utilisation d'un CHIP qui n'est pas équipé. " + chipName);
+		return;
+	}
+	var st = 0;
+	if(getTurn() >= 2){
+		if(getCooldown(chip) != 0)
+			return false;
+		if(getTP() < getChipCost(chip))
+			return false;
+		st = useChip(chip,this);
+		if(st == USE_SUCCESS || st == USE_CRITICAL){
+			debug("Utilisation de " + chipName);
+			return true;
+		} else debugE("Utilisation du "+ chipName +" FAILED. " + st);
+	}
+	return false;
+}
+
+function ArmorUp() {
+	autoUseChips(CHIP_ARMOR);
+	autoUseChips(CHIP_SHIELD);
+}
+
+function Heal(leek) {
+	var missingLife = getTotalLife(leek) - getLife(leek);
+	var sagesse = getWisdom();
+	if(missingLife > computeHeal(Stuffs[CHIP_CURE]["heals"]["avg"],sagesse)){
+		useChip2(CHIP_CURE,leek);
+		missingLife = getTotalLife(leek) - getLife(leek);
+	}
+	if(missingLife > computeHeal(Stuffs[CHIP_BANDAGE]["heals"]["avg"],sagesse)){
+		useChip2(CHIP_BANDAGE,leek);
+		missingLife = getTotalLife(leek) - getLife(leek);
+	}
+}
+
+function BeforeMoving() {
+	/* Actions à réaliser le plus régulièrement */
+	autoUseChips(CHIP_VACCINE);
+	ArmorUp();
+
+	Heal(this);
+
+	/* ******** */
+}
+
+function SetTarget() {
+	var newEnemy = getNearestEnemy();
+
+	if(newEnemy != ENEMY) {
+		lama();
+		ENEMY = newEnemy;
+		debug("Changement de cible : " + getName(ENEMY));
+	}
+}
+
+/* On essaye d'achever un ennemi */
+function TryingToFinish() {
+	if(getCellDistance(getCell(ENEMY),getCell()) > 10) //Rien à tenter.
+		return;
+
+	if(getAliveEnemiesCount() > 1){ //On va se poser et réfléchir
+		if(getLife() < getTotalLife() / 2)
+			return;
+		if(getAbsoluteShield() == 0)
+			return;
+	}
+
+	for(var enemy in getAliveEnemies()) {
+		if(isSummon(enemy)) continue;
+		ENEMY = enemy;
+		var life = getLife(enemy);
+		var cell = null;
+		var dmg;
+		var testChip = function(chip) {
+			var highestDmg = null, nbUses = 0;
+			nbUses = floor(getTP() / getChipCost(chip));
+			highestDmg = Stuffs[chip]["damages"]["min"];
+			highestDmg = computeDamageWithForce(highestDmg,getStrength());
+
+			//On tient compte de l'armure et d'une marge d'erreur en %
+			//Une telle action sans certitude peut coûter nos protections
+			//Et donc la vie du poireau. Ambiance. Zouké zouké.
+			dmg = computeDmgReduction(enemy,highestDmg);
+			dmg -= (dmg * 15 / 100); //La marge d'erreur en %
+
+			dmg *= nbUses; //On tient compte du nombre d'utilisations possibles.
+
+			if(dmg < life) // Inutile
+				return;
+
+			cell = getCellToUseChip(chip, enemy);
+			if(getPathLength(getCell(), cell) > getMP()) {
+				debug("Tentative avortée car impossible de se positionner.");
+				cell = null;
+			}
+		};
+
+		var testWeapon = function(weapon) {
+			var highestDmg = null, nbUses = 0;
+			nbUses = floor(getTP() / getWeaponCost(weapon));
+			highestDmg = Stuffs[weapon]["damages"]["min"];
+			highestDmg = nbUses*computeDamageWithForce(highestDmg,getStrength());
+
+			//On tient compte de l'armure et d'une marge d'erreur en %
+			//Une telle action sans certitude peut coûter nos protections
+			//Et donc la vie du poireau. Ambiance. Zouké zouké.
+			dmg = computeDmgReduction(enemy,highestDmg);
+			dmg -= (dmg * 15 / 100); //La marge d'erreur en %
+
+			dmg *= nbUses; //On tient compte du nombre d'utilisations possibles.
+
+			if(dmg < life) // Inutile
+				return;
+
+			cell = getCellToUseWeapon(weapon, enemy);
+			if(getPathLength(getCell(), cell) > getMP()) {
+				debug("Tentative avortée car impossible de se positionner.");
+				cell = null;
+			}
+		};
+
+
+		if(getCooldown(CHIP_STALACTITE) == 0) {
+			testChip(CHIP_STALACTITE);
+		}
+		if(cell == null) {
+			testChip(CHIP_LIGHTNING);
+		}
+		if(cell == null) { // Pas de stalactite. On tente l'arme
+			testWeapon(getWeapon());
+		}
+
+
+		if(cell == null) { // RageQuit.
+			return;
+		}
+
+		debug("Tentative : " + getName(enemy) + " [" + dmg + " | " + life + "]");
+
+
+		moveTowardCell(cell);
+		useChipLoop(CHIP_STALACTITE); //Si pas disponible, il passera à l'arme.
+		useChipLoop(CHIP_LIGHTNING); //On peut le tuer au travers des obstacles
+		useWeaponLoop(getWeapon()); //On tente l'arme. Sinon SPARK
+		if(isDead(enemy)) {
+			debugC("F-F-F-FINISH MOVE SUR " + getName(enemy), getColor(0, 255, 20));
+			SetTarget();
+		} else {
+			debugE("Finish-move pas successfull :( PV restants : " + getLife(enemy));
+		}
+		return;
+	}
+
+}
+
+function Move() {
+	var enemyPos = getCell(ENEMY);
+	var myPos = getCell();
+	var distance = ceil(getCellDistance(enemyPos, myPos));
+	var CURRENT_WEAPON = getWeapon();
+	var WEAPON_MIN_RANGE = getWeaponMinRange(FIRST_WEAPON);
+	var WEAPON_MAX_RANGE = getWeaponMaxRange(FIRST_WEAPON);
+	var shortestCell = null;
+	var tpCost = 0;
+
+	if(getPath(myPos,enemyPos) == null){
+		debug("Impossible de bouger. Arrêt");
+		return;
+	}
+
+	if(BERSERK_MODE == true) {
+		debug("Berserk : on rush");
+		moveToward(ENEMY);
+		return;
+	}
+
+	if(distance > CHIP_MAX_RANGE) {
+		debug("On se rapproche.");
+
+		while(distance >= CHIP_MAX_RANGE && getMP() > 0) {
+			moveToward(ENEMY,1);
+			myPos = getCell();
+			distance = getCellDistance(enemyPos,myPos);
+		}
+		return;
+	}
+
+	/* On est à portée de SPARK. Mais pouvons-nous l'atteindre
+	au Lightning ? */
+
+	if(	distance <= Stuffs[CHIP_LIGHTNING]["scope"]["max"] &&
+		distance >= Stuffs[CHIP_LIGHTNING]["scope"]["min"] &&
+		verifyLoS(myPos,enemyPos,isInlineChip(CHIP_LIGHTNING))){
+		debug("Pas besoin de bouger, on reste sur place pour le lighting.");
+		shortestCell = getCell();
+		tpCost = getChipCost(CHIP_LIGHTNING);
+	} else {
+		shortestCell = getNearestCellToUseChip(CHIP_LIGHTNING, ENEMY);
+		tpCost = getChipCost(CHIP_LIGHTNING);
+		debug("Je pense aller vers la case la plus proche pour utiliser le lighting " + shortestCell);
+	}
+
+	/* Magnum */
+	if(shortestCell == null) {
+	if(getCellDistance(myPos, enemyPos) <= WEAPON_MAX_RANGE &&
+		verifyLoS(myPos,enemyPos,isInlineWeapon(CURRENT_WEAPON))){
+		debug("Pas besoin de bouger, on reste sur place pour tirer.");
+		shortestCell = getCell();
+		tpCost = getWeaponCost(CURRENT_WEAPON);
+	} else {
+		shortestCell = getNearestCellToUseWeapon(ENEMY);
+		tpCost = getWeaponCost(CURRENT_WEAPON);
+		debug("Je pense aller vers la case la plus proche pour utiliser mon arme " + shortestCell);
+	}
+	}
+
+	if(getTP() < tpCost) { /* Si on peut pas tirer, autant se cacher. */
+		debugW("Pas assez de TP pour attaquer au final. On ne bouge pas.");
+		shortestCell = myPos;
+	}
+
+	if(getCellDistance(shortestCell, myPos) <= getMP()){
+		debug("Déplacement vers la case pour tirer.");
+		moveTowardCell(shortestCell, getMP());
+	} else {
+		debug("Pas assez de points de déplacement. Je dois me cacher");
+		var cell = getNearestCellToFlee();
+		if(cell != null){
+			moveTowardCell(cell, getMP());
+			debug("Déplacement vers la case " + cell);
+		} else {
+			debugE("getNearestCellToFlee vaut null. On fuit..");
+			if(getAliveEnemiesCount() > 1)
+				moveAwayFromLeeks(getAliveEnemies());
+			else
+				moveAwayFrom(ENEMY);
+		}
+	}
+}
+
+
+function HandleAction() {
+	var enemyPos = getCell(ENEMY);
+	var myPos = getCell();
+	var distance = ceil(getCellDistance(enemyPos, myPos));
+	var CURRENT_WEAPON = getWeapon();
+	var WEAPON_MIN_RANGE = getWeaponMinRange(FIRST_WEAPON);
+	var WEAPON_MAX_RANGE = getWeaponMaxRange(FIRST_WEAPON);
+
+
+	/* L'objectif est de gérer l'attaque en fonction des cas suivants :
+		- Je veux utiliser un chip à distance
+		- Je veux utiliser une arme à distance
+		- Je veux utiliser une arme de contact
+		Sauf certaines situations (bouclier, etc..)
+	*/
+
+
+	if(distance <= 2){ //CaC
+		if(CURRENT_WEAPON != SECONDARY_WEAPON){
+			CURRENT_WEAPON = SECONDARY_WEAPON;
+			setWeapon(SECONDARY_WEAPON);
+		}
+		moveToward(ENEMY);
+	} else { //Distant
+		if(CURRENT_WEAPON != FIRST_WEAPON){
+			CURRENT_WEAPON = FIRST_WEAPON;
+			setWeapon(FIRST_WEAPON);
+		}
+	}
+
+	useChipLoop(CHIP_STALACTITE);
+	useChipLoop(CHIP_LIGHTNING);
+	useWeaponLoop(CURRENT_WEAPON);
+}
+
+
+function useChipLoop(Chip) {
+	var status;
+
+	var chipName = getChipName(Chip);
+	if(not inArray(getChips(),Chip)){
+		debugE("Utilisation d'un CHIP qui n'est pas équipé. " + chipName);
+		return;
+	}
+
+	if(not verifyLoS(getCell(), getCell(ENEMY), isInlineChip(Chip)))
+		return;
+
+
+	while(getTP() >= getChipCost(Chip)){
+		if(ENEMY == null)
+			SetTarget();
+
+		if(getChipCooldown(Chip) != 0){
+			return;
+		}
+		var dist = getCellDistance(getCell(), getCell(ENEMY));
+		if(dist > Stuffs[Chip]["scope"]["max"] || dist < Stuffs[Chip]["scope"]["min"]) {
+			debugE("Tentative d'utilisation du chip hors-portée. Arrêt.");
+			return;
+		}
+		status = useChip(Chip, ENEMY);
+		if(status != USE_SUCCESS && status != USE_CRITICAL) {
+			debugE("Erreur lors de l'utilisation du chip " + getChipName(Chip) + "  " + status);
+			return;
+		} else {
+			HasAttacked = true;
+		}
+	}
+}
+
+function useWeaponLoop(Weapon) {
+	var status;
+
+	if(not inArray(getWeapons(),Weapon)){
+		debugE("Utilisation d'une ARME qui n'est pas équipé. " + getWeaponName(Weapon));
+		return;
+	}
+
+	while(getTP() >= getWeaponCost(Weapon)){
+		if(ENEMY == null || isDead(ENEMY))
+			SetTarget();
+		if(not verifyLoS(getCell(), getCell(ENEMY), isInlineWeapon(Weapon)))
+			return;
+		var dist = getCellDistance(getCell(ENEMY), getCell());
+		if(dist > Stuffs[Weapon]["scope"]["max"] || dist < Stuffs[Weapon]["scope"]["min"])
+			return;
+		status = useWeapon(ENEMY);
+		if(status != USE_SUCCESS && status != USE_CRITICAL) {
+			debugE("Erreur lors de l'utilisation de l'arme principale " + status);
+			return;
+		} else {
+			HasAttacked = true;
+		}
+	}
+}
+
+
+
+function EndOfTurn() {
+	debug("Appel de EndOfTurn()");
+	SetTarget();
+
+	if(getMP() > 0) {
+		if(getTurn() > MAX_TURNS - 15) {
+			debug("On touche à la fin. YOLO.");
+			moveToward(ENEMY, getMP());
+		} else {
+			var c = getNearestCellToFlee();
+			if(c == null) {
+				debugW("NULL : on reste sur place.");
+			} else {
+				if(c == getCell()) {
+					debug("La position de destination est identique que celle actuelle.");
+				}
+				debug("On essaye de se cacher maintenant vers " + c);
+				moveTowardCell(c, getMP());
+			}
+		}
+	}
+
+	if(getTP() > 0){
+		if(getCooldown(CHIP_PUNY_BULB) == 0)
+			if(getTP() > getChipCost(CHIP_PUNY_BULB))
+				summon(CHIP_PUNY_BULB, getCellToUseChip(CHIP_PUNY_BULB, this), bulb_main);
+
+
+		if(getTurn() >= 2) {
+			if(getLife() < getTotalLife() - 20){
+				autoUseChips(CHIP_CURE);
+			}
+
+
+			//On essaye de se remettre de l'armure
+			ArmorUp();
+
+			//On essaye d'utiliser les derniers points si possible
+			useChipLoop(CHIP_LIGHTNING);
+			useChipLoop(CHIP_SPARK);
+		}
+
+		if(getTP() > 0)
+			debugW("[" + getTurn() + "] Nombre de points gaspillés : " + getTP());
+		if(getMP() > 0)
+			debugW("[" + getTurn() + "] Nombre de mouvements gaspillés : " + getMP());
+
+
+		debug("Nombre d'opérations : " + getOperations() + "/" + OPERATIONS_LIMIT);
+	}
+
+}
+
+/* "main" */
+if(getFightContext() != FIGHT_CONTEXT_CHALLENGE || inArray(FRIENDS,getFarmerName(getNearestEnemy()))) {
+
+	debug("Tour n°" + getTurn());
+
+	TryingToFinish();
+	SetTarget();
+	BeforeMoving();
+	Move();
+	HandleAction();
+	EndOfTurn();
+
+
+} else {
+	debug("[MODE TEST] Tour n°" + getTurn());
+	SetTarget();
+	Move();
+	HandleAction();
+	EndOfTurn();
+}
