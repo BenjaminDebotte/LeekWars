@@ -1,0 +1,321 @@
+/*Mon Jan 12 2015 16:23:14 GMT+0100 (Romance Standard Time)*/ 
+global Stuffs = [WEAPON_PISTOL: ['cooldown': 0, 'cost': 3, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 15, 'max': 20, 'avg': 17.5, 'raw': (15 + 20) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_MACHINE_GUN: ['cooldown': 0, 'cost': 4, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 6, 'inline': true, 'los': true
+        ], 'fails': 7, 'damages': ['min': 20, 'max': 24, 'avg': 22, 'raw': (20 + 24) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_DOUBLE_GUN: ['cooldown': 0, 'cost': 4, 'count': 2, 'radius': 0, 'scope': ['min': 2, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 18, 'max': 25, 'avg': 21.5, 'raw': (18 + 25) / 2
+        ], 'damages_over_time': ['min': 5, 'max': 8, 'avg': 6.5, 'raw': (5 + 8) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_SHOTGUN: ['cooldown': 0, 'cost': 5, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 5, 'inline': true, 'los': true
+        ], 'fails': 10, 'damages': ['min': 33, 'max': 43, 'avg': 38, 'raw': (33 + 43) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_MAGNUM: ['cooldown': 0, 'cost': 5, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 8, 'inline': false, 'los': true
+        ], 'fails': 4, 'damages': ['min': 25, 'max': 40, 'avg': 32.5, 'raw': (25 + 40) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_LASER: ['cooldown': 0, 'cost': 6, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 7, 'inline': true, 'los': true
+        ], 'fails': 9, 'damages': ['min': 43, 'max': 59, 'avg': 51, 'raw': (43 + 59) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_GRENADE_LAUNCHER: ['cooldown': 0, 'cost': 6, 'count': 1, 'radius': 2, 'scope': ['min': 4, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 7, 'damages': ['min': 45, 'max': 53, 'avg': 49, 'raw': (45 + 53) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_FLAME_THROWER: ['cooldown': 0, 'cost': 7, 'count': 3, 'radius': 0, 'scope': ['min': 2, 'max': 7, 'inline': true, 'los': true
+        ], 'fails': 10, 'damages': ['min': 35, 'max': 40, 'avg': 37.5, 'raw': (35 + 40) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_DESTROYER: ['cooldown': 0, 'cost': 6, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 40, 'max': 60, 'avg': 50, 'raw': (40 + 60) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_GAZOR: ['cooldown': 0, 'cost': 7, 'count': 4, 'radius': 3, 'scope': ['min': 2, 'max': 7, 'inline': true, 'los': true
+        ], 'fails': 9, 'damages': ['min': 15, 'max': 20, 'avg': 17.5, 'raw': (15 + 20) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_B_LASER: ['cooldown': 0, 'cost': 5, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 8, 'inline': true, 'los': true
+        ], 'fails': 3, 'damages': ['min': 50, 'max': 60, 'avg': 55, 'raw': (50 + 60) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 50, 'max': 60, 'avg': 55, 'raw': (50 + 60) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_ELECTRISOR: ['cooldown': 0, 'cost': 7, 'count': 1, 'radius': 1, 'scope': ['min': 7, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 12, 'damages': ['min': 70, 'max': 80, 'avg': 75, 'raw': (70 + 80) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_DESTROYER: ['cooldown': 0, 'cost': 8, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 15, 'inline': true, 'los': true
+        ], 'fails': 8, 'damages': ['min': 90, 'max': 100, 'avg': 95, 'raw': (90 + 100) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], WEAPON_M_LASER: ['cooldown': 0, 'cost': 8, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 15, 'inline': true, 'los': true
+        ], 'fails': 8, 'damages': ['min': 90, 'max': 100, 'avg': 95, 'raw': (90 + 100) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_SHOCK: ['cooldown': 0, 'cost': 2, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 30, 'damages': ['min': 5, 'max': 7, 'avg': 6, 'raw': (5 + 7) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_PEBBLE: ['cooldown': 1, 'cost': 2, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 9, 'damages': ['min': 2, 'max': 17, 'avg': 9.5, 'raw': (2 + 17) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_SPARK: ['cooldown': 0, 'cost': 3, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 10, 'inline': false, 'los': false
+        ], 'fails': 4, 'damages': ['min': 8, 'max': 16, 'avg': 12, 'raw': (8 + 16) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ICE: ['cooldown': 0, 'cost': 4, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 8, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 17, 'max': 19, 'avg': 18, 'raw': (17 + 19) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_BANDAGE: ['cooldown': 1, 'cost': 2, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 10, 'max': 15, 'avg': 12.5, 'raw': (10 + 15) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_HELMET: ['cooldown': 4, 'cost': 4, 'count': 3, 'radius': 0, 'scope': ['min': 0, 'max': 4, 'inline': false, 'los': true
+        ], 'fails': 10, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 15, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ROCK: ['cooldown': 1, 'cost': 5, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 8, 'damages': ['min': 30, 'max': 31, 'avg': 30.5, 'raw': (30 + 31) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_STRETCHING: ['cooldown': 3, 'cost': 3, 'count': 2, 'radius': 0, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 50, 'strength': 0
+    ], CHIP_WALL: ['cooldown': 5, 'cost': 4, 'count': 2, 'radius': 0, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 15, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_PROTEIN: ['cooldown': 3, 'cost': 3, 'count': 2, 'radius': 0, 'scope': ['min': 0, 'max': 4, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 50
+    ], CHIP_SHIELD: ['cooldown': 3, 'cost': 3, 'count': 2, 'radius': 0, 'scope': ['min': 0, 'max': 4, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 8, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_CURE: ['cooldown': 2, 'cost': 4, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 8, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 35, 'max': 43, 'avg': 39, 'raw': (35 + 43) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_FLASH: ['cooldown': 1, 'cost': 4, 'count': 1, 'radius': 1, 'scope': ['min': 1, 'max': 7, 'inline': true, 'los': true
+        ], 'fails': 1, 'damages': ['min': 19, 'max': 24, 'avg': 21.5, 'raw': (19 + 24) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_MOTIVATION: ['cooldown': 3, 'cost': 3, 'count': 2, 'radius': 0, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 1, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_LEATHER_BOOTS: ['cooldown': 3, 'cost': 3, 'count': 2, 'radius': 0, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 1, 'agility': 0, 'strength': 0
+    ], CHIP_FLAME: ['cooldown': 0, 'cost': 4, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 10, 'damages': ['min': 25, 'max': 27, 'avg': 26, 'raw': (25 + 27) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_RAMPART: ['cooldown': 4, 'cost': 6, 'count': 3, 'radius': 0, 'scope': ['min': 2, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 25, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_STEROID: ['cooldown': 4, 'cost': 6, 'count': 3, 'radius': 0, 'scope': ['min': 0, 'max': 4, 'inline': false, 'los': true
+        ], 'fails': 5, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 100
+    ], CHIP_DRIP: ['cooldown': 3, 'cost': 5, 'count': 1, 'radius': 2, 'scope': ['min': 2, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 7, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 35, 'max': 40, 'avg': 37.5, 'raw': (35 + 40) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_WARM_UP: ['cooldown': 4, 'cost': 6, 'count': 3, 'radius': 0, 'scope': ['min': 0, 'max': 4, 'inline': false, 'los': true
+        ], 'fails': 8, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 100, 'strength': 0
+    ], CHIP_STALACTITE: ['cooldown': 3, 'cost': 6, 'count': 1, 'radius': 0, 'scope': ['min': 2, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 20, 'damages': ['min': 64, 'max': 67, 'avg': 65.5, 'raw': (64 + 67) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ARMOR: ['cooldown': 5, 'cost': 6, 'count': 4, 'radius': 0, 'scope': ['min': 0, 'max': 4, 'inline': false, 'los': true
+        ], 'fails': 8, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 25, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_WINGED_BOOTS: ['cooldown': 4, 'cost': 4, 'count': 3, 'radius': 1, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 10, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 1, 'agility': 0, 'strength': 0
+    ], CHIP_VACCINE: ['cooldown': 3, 'cost': 6, 'count': 3, 'radius': 0, 'scope': ['min': 0, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 7, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 34, 'max': 38, 'avg': 36, 'raw': (34 + 38) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_LIGHTNING: ['cooldown': 0, 'cost': 4, 'count': 1, 'radius': 2, 'scope': ['min': 2, 'max': 5, 'inline': true, 'los': true
+        ], 'fails': 7, 'damages': ['min': 35, 'max': 47, 'avg': 41, 'raw': (35 + 47) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_FORTRESS: ['cooldown': 4, 'cost': 8, 'count': 3, 'radius': 0, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 40, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ADRENALINE: ['cooldown': 4, 'cost': 5, 'count': 3, 'radius': 1, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 8, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 1, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ROCKFALL: ['cooldown': 1, 'cost': 5, 'count': 1, 'radius': 2, 'scope': ['min': 5, 'max': 7, 'inline': false, 'los': true
+        ], 'fails': 8, 'damages': ['min': 48, 'max': 56, 'avg': 52, 'raw': (48 + 56) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_LIBERATION: ['cooldown': 5, 'cost': 5, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 6, 'inline': false, 'los': true
+        ], 'fails': 7, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ICEBERG: ['cooldown': 3, 'cost': 7, 'count': 1, 'radius': 2, 'scope': ['min': 3, 'max': 5, 'inline': true, 'los': true
+        ], 'fails': 5, 'damages': ['min': 72, 'max': 80, 'avg': 76, 'raw': (72 + 80) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_RESURRECTION: ['cooldown': 0, 'cost': 8, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 25, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 200, 'max': 200, 'avg': 200, 'raw': (200 + 200) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_ARMORING: ['cooldown': 5, 'cost': 5, 'count': 1, 'radius': 0, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 4, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 20, 'max': 25, 'avg': 22.5, 'raw': (20 + 25) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_METEORITE: ['cooldown': 3, 'cost': 8, 'count': 1, 'radius': 2, 'scope': ['min': 4, 'max': 8, 'inline': false, 'los': true
+        ], 'fails': 4, 'damages': ['min': 70, 'max': 80, 'avg': 75, 'raw': (70 + 80) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_REFLEXES: ['cooldown': 5, 'cost': 8, 'count': 4, 'radius': 0, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 6, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 200, 'strength': 0
+    ], CHIP_DOPING: ['cooldown': 5, 'cost': 7, 'count': 4, 'radius': 0, 'scope': ['min': 0, 'max': 5, 'inline': false, 'los': true
+        ], 'fails': 14, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 200
+    ], CHIP_TELEPORTATION: ['cooldown': 10, 'cost': 8, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 20, 'inline': false, 'los': false
+        ], 'fails': 19, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_SEVEN_LEAGUE_BOOTS: ['cooldown': 5, 'cost': 6, 'count': 4, 'radius': 0, 'scope': ['min': 0, 'max': 2, 'inline': false, 'los': true
+        ], 'fails': 7, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 2, 'agility': 0, 'strength': 0
+    ], CHIP_RAGE: ['cooldown': 5, 'cost': 7, 'count': 4, 'radius': 0, 'scope': ['min': 0, 'max': 3, 'inline': false, 'los': true
+        ], 'fails': 12, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 2, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ], CHIP_INVERSION: ['cooldown': 4, 'cost': 6, 'count': 1, 'radius': 0, 'scope': ['min': 1, 'max': 16, 'inline': false, 'los': true
+        ], 'fails': 3, 'damages': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'damages_over_time': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'heals': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'max_health': ['min': 0, 'max': 0, 'avg': 0, 'raw': (0 + 0) / 2
+        ], 'relative': 0, 'absolute': 0, 'turn_point': 0, 'movement_point': 0, 'agility': 0, 'strength': 0
+    ]
+];

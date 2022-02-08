@@ -1,0 +1,462 @@
+include("stats");
+
+global EFFECT_TYPE = 0;
+global EFFECT_MIN = 1;
+global EFFECT_MAX = 2;
+global EFFECT_TURNS = 3;
+global EFFECT_TARGETS = 4;
+
+global TRAINING = (getFightContext() === FIGHT_CONTEXT_TEST);
+//global me = getEntity();
+
+function computeHeal(heal, sagesse){
+	return (heal) * (1 + sagesse / 100);
+}
+
+function computeDamageWithForce(dmg, force) {
+	return 	floor(dmg * (1 + force / 100));
+}
+
+function computeDamageDealForLeek(leek) {
+	return computeDamageWithForce(getStrength(leek), getWeapon(leek));
+}
+
+function computeShield(shield, resistence) {
+	return shield * ( 1 + resistence / 100);
+}
+
+
+function computeRelativeShieldDmgReduction(leek) {
+	return computeShield(getRelativeShield(leek), getResistance(leek));
+
+}
+function computeAbsoluteShieldDmgReduction(leek) {
+	return computeShield(getAbsoluteShield(leek), getResistance(leek));
+}
+
+function computeDmgReduction(leek, damage) {
+	return computeDmgReductionFromShields(computeRelativeShieldDmgReduction(leek), computeAbsoluteShieldDmgReduction(leek), damage);
+}
+
+function computeDmgReductionFromShields(relativeShield, absolutShield, damage) {
+	return (damage) * (1 - relativeShield / 100) - absolutShield;
+}
+
+function verifyLoS(start, end, isInline) {
+	if(isInline) {
+		if(!isOnSameLine(start, end))
+			return false;
+	}
+	return lineOfSight(start,end);
+}
+
+function getCellDistanceFromThis(cell) {
+	return getCellDistance(cell, getCell());
+}
+
+function arrayIntersect(array1, array2) {
+	var end_tab = [];
+	for(var element in array1) 
+		if (inArray(array2, element)) 
+			push(end_tab, element);
+	return end_tab;
+}
+
+
+function getArrayWithoutDuplicates(array) {
+	var end_tab = [];
+	for(var element in array) 
+		if (not inArray(end_tab, element)) 
+			push(end_tab, element);
+	return end_tab;
+}
+
+
+
+function shellsort(T, func_cmp) {
+	var gaps = [701, 301, 132, 57, 23, 10, 4, 1];
+	for(var gap in gaps){
+		for(var i = gap; i < count(T); i++) {
+			var tmp = T[i];
+			var j;
+			for(j = i; j >= gap && func_cmp(T[j - gap]) > func_cmp(tmp); j -= gap) {
+				T[j] = T[j-gap];
+			}
+			T[j] = tmp;
+		}
+	}
+	return T;
+}
+
+function getNearestObstacles() {
+	var obstacles = getObstacles();
+	shellsort(obstacles, getCellDistanceFromThis);
+	return obstacles;
+}
+
+
+function getNearestCellToUseWeapon(leek){
+	var cells = getCellsToUseWeapon(leek);
+	cells = arraySort(cells, function(cell1,cell2) {
+		var a = getCellDistance(getCell(), cell1);
+		var b = getCellDistance(getCell(), cell2);
+		return (a < b ? -1 : a == b ? 0 : 1);
+	} );
+			
+	 return cells[0];
+}
+
+function getNearestCellToUseChip(chip,leek){
+	var cells = getCellsToUseChip(chip,leek);
+	if(cells == null)
+		return null;
+	cells = arraySort(cells, function(cell1,cell2) {
+		var a = getCellDistance(getCell(), cell1);
+		var b = getCellDistance(getCell(), cell2);
+		return (a < b ? -1 : a == b ? 0 : 1);
+	} );
+			
+	 return cells[0];
+}
+
+
+/*
+The cell at the center of the field (number 306 ) has the coordinates (0, 0) ;
+The top left cell (number 0 ) has the coordinates (- 17, 0) ;
+The top right cell (number 17 ) has the coordinates (0, -17) ;
+The bottom left cell (number 595 ) has the coordinates (0, 17) ;
+The bottom right cell (number 612 ) has the coordinates (17, 0) .
+ */
+ 
+function getRelativeCellFromXY(cell,X,Y) {
+	return getCellFromXY(getCellX(cell) + X, getCellY(cell) + Y);
+}
+function getUpCell(cell) {
+	return getRelativeCellFromXY(cell,0,1);
+}
+function getDownCell(cell) {
+	return getRelativeCellFromXY(cell,0,-1);
+}
+function getRightCell(cell) {
+	return getRelativeCellFromXY(cell,1,0);
+}
+function getLeftCell(cell) {
+	return getRelativeCellFromXY(cell,-1,0);
+}
+  
+function getCellsInRangeForMovement(leek,mp) {
+	var originCell = getCell(leek);
+	var rangedCells = getCellsInRange(originCell, 0, mp);
+	
+	//On enlève les obstacles et tout ce qui est trop couteux en mp
+	var moveableCells = arrayFilter(rangedCells, function(a) {
+		if(a == null) return false;
+		if(!isEmptyCell(a)) return false;
+		if(getPathLength(originCell, a) > mp) return false;
+		
+		return true;
+	});
+	return moveableCells;
+} 
+ 
+
+ 
+function getCellsInRange(cell, range_min, range_max) {
+	var cellList = [];
+	if(cell == null)
+		return cellList;
+	var X = getCellX(cell);
+	var Y = getCellY(cell);
+	
+	for(var x = X - ceil(range_max); x <= X + ceil(range_max); x++)
+		for(var y = Y - ceil(range_max); y <= Y + ceil(range_max); y++){
+			var XYcell = getCellFromXY(x, y);
+			if(XYcell == null)
+				continue;
+			if(getCellDistance(cell, XYcell) < range_min)
+				continue;
+			
+			push(cellList,XYcell);
+
+		}
+	return cellList;
+}
+
+
+
+function getSafeCellsFromEnemy(enemy) {
+	var endangeredCells = getCellsEnemyCanAttackWithWeapon(enemy,getWeapon(enemy));
+	var moveableCells = getCellsInRangeForMovement(getEntity(), getMP());
+	return arrayFilter(moveableCells, function(cell) { return !inArray(endangeredCells, cell)});
+}
+
+
+function getAllCellsInRange(cells, range_min, range_max) {
+	var cellList = [];
+	for(var cell in cells) {
+		pushAll(cellList, getCellsInRange(cell, range_min, range_max));
+	}
+	return getArrayWithoutDuplicates(cellList);
+}
+
+
+function getCellsWhereWeaponCanHit(cell, weapon) {
+	var cells = getCellsInRange(cell, getWeaponMinRange(weapon) ,getWeaponMaxRange(weapon));
+	var availableCells = arrayFilter(cells, function(a) {
+		if(a == null)
+			return false;
+		if(isObstacle(a))
+			return false;
+		return (verifyLoS(cell, a, false));
+	});
+	
+	return availableCells;
+}
+
+function getCellsEnemyCanAttackWithWeapon(leek,weapon) {
+	//On regarde où l'ennemi peut se déplacer
+	debug("getCellsEnemyCanAttackWithWeapon start");
+	var weapon_max_range = getWeaponMaxRange(weapon);
+	var weapon_min_range = getWeaponMinRange(weapon);
+	var moveableCells = getCellsInRangeForMovement(leek,getMP(leek));
+	var endangeredCells = [];
+	
+	for(var moveableCell in moveableCells){
+		pushAll(endangeredCells, getCellsWhereWeaponCanHit(moveableCell, weapon));
+	}
+	
+	endangeredCells = getArrayWithoutDuplicates(endangeredCells);
+	
+	debugC("endangeredCells cells are shown as orange", getColor(250, 140, 30));
+	mark(endangeredCells, getColor(250, 140, 30));
+	debugC("moveableCells are shown as cyan", getColor(0, 200, 200));
+	mark(moveableCells, getColor(0, 200, 200));
+
+	debug("getCellsEnemyCanAttackWithWeapon end");
+	return endangeredCells;
+}
+
+
+function getCellsWhereEnemiesCanAttackWithTheirWeapons(){
+	var endangeredCells;
+	for(var enemy in getAliveEnemies()){
+		pushAll(endangeredCells,getCellsEnemyCanAttackWithWeapon(enemy, getWeapon(enemy)));
+	}
+	return getArrayWithoutDuplicates(endangeredCells);
+}
+
+
+function getDamageMapForLeek(leek) {
+	var _weapon = getWeapon(leek);
+	if(_weapon == null) { debug("leek " + getName(leek) + " has no weapon."); }
+	var cells = getCellsEnemyCanAttackWithWeapon(leek, _weapon);
+	debug("cells:" + cells);
+	var force = getStrength(leek);
+	var dmg = _weapon ? Stuffs[_weapon]["damages"]["avg"] : 0;
+	if(dmg == null) {
+		dmg = getWeaponEffects(_weapon)[0]['max']; //Valeur arbitraire
+		if(dmg == null) {
+			debugW("Arme non gérée pour le calcul de la map: " + getWeaponName(_weapon) + ". Set default to own weapon");
+			dmg = Stuffs[getWeapon()]["damages"]["avg"];
+		}
+	}
+	
+	//Calcul pour tenir compte de la force.
+	dmg = computeDamageWithForce(dmg, force); 
+	
+	debug("Dégat pour l'arme " + getWeaponName(_weapon) + " : " + dmg);
+	var max = 1;
+	var damageMap = [];
+	for(var cell in cells) {
+		damageMap[cell] += dmg;
+		max = max > damageMap[cell] ? max : damageMap[cell];
+	}
+	
+	if(TRAINING) {
+		debug("TRAINING -[ "+ max +"]  Display damage map " + damageMap);
+		for(var cell in cells) {
+			var c = (255*damageMap[cell])/max;
+			markText(cell, damageMap[cell], getColor(c,0,0));
+		}
+	}
+	
+	return damageMap;
+}
+
+function getDamageMapForEnemies() {
+	var damageMap = [];
+	for(var enemy in getAliveEnemies())
+		pushAll(damageMap, getDamageMapForLeek(enemy));
+	return damageMap;
+}
+
+
+function getNearestCellToHideFrom(leek) {
+	var safeCells = getSafeCellsFromEnemy(leek);
+	arraySort(safeCells,function(a,b){
+		if(getCellDistanceFromThis(a) == getCellDistanceFromThis(b))
+			return 0;
+		else if(getCellDistanceFromThis(a) < getCellDistanceFromThis(b))
+			return -1;
+		else
+			return 1;
+	});
+	debug("Cases les plus proches : " + safeCells);
+	return safeCells[0];
+}
+
+function getSafeCellsFromEnemies(){
+	var safeCells = [];
+	for(var enemy in getAliveEnemies()) {
+		var safeCellsFromEnemy = getSafeCellsFromEnemy(enemy);
+		safeCells = safeCells !== [] ? arrayIntersect(safeCells, safeCellsFromEnemy) : safeCellsFromEnemy ;
+	}
+	safeCells = getArrayWithoutDuplicates(safeCells);
+	debugC("Safe cells are shown as green", COLOR_GREEN);
+	mark(safeCells, COLOR_GREEN);
+	return safeCells;
+}
+
+function getNearestCellToFlee() {
+	var safeCell = null;
+	var safeCells = getSafeCellsFromEnemies();
+	debugC("safeCells: " + safeCells, COLOR_GREEN);
+	if(!isEmpty(safeCells)){ //Pas besoin de gérer la map de dégat
+		/* On veut la plus proche, les cellules sont deja triees */
+		for(var cell in safeCells) {
+			var d = getPathLength(getCell(), cell);
+			if(d <= getMP()){
+				safeCell = cell;
+				break;
+			}
+		}
+		if(safeCell != null) {
+			debug("On peut fuir vers une safeCell : " + safeCell);
+			return safeCell;
+		}
+		else { debug("Pas assez de MP pour se mettre à l'abri.'"); }
+	}
+	debug("On essaye d'aller vers une case où les dégats sont minimes");
+	var damageMap = getDamageMapForEnemies();
+	
+	//Tri par dégats
+	damageMap = arraySort(damageMap, function(a,b){
+		return a < b ? -1 : a == b ? 0 : 1;
+	});
+		
+	//La DamageMap étant triée par dégats, on prend la première accessible
+	var cost = getMP();
+	arrayIter(damageMap, function(key,value) {
+		if(safeCell != null) return; //A AMÉLIORER
+		
+		var d = getPathLength(getCell(), key);
+		if(d < cost) {
+			safeCell = key;
+			cost = d;
+		}
+	});
+	if(safeCell == null) {
+		debug("Aucune case possible.");
+		return null;
+	}
+	debug("Case trouvée : " + safeCell + " - dmg : " + damageMap[safeCell]);
+	return safeCell;
+}
+
+function getCellNearToEnemyToFlee(enemy) {
+	var safeCell = null;
+	var safeCells = getSafeCellsFromEnemies();
+	var enemyCell = getCell(enemy);
+	arraySort(safeCells, function(cell1, cell2){
+		var d1 = getCellDistance(cell1,enemyCell);
+		var d2 = getCellDistance(cell2,enemyCell);
+		return ( d1 < d2 ? -1 : (d1 == d2 ? 0 : 1) );
+	});
+	
+	if(!isEmpty(safeCells)){ //Pas besoin de gérer la map de dégat
+		debug("On peut fuir vers une safeCell : " + safeCells[0]);
+		return safeCells[0];
+	}
+	
+	debug("On essaye d'aller vers une case où les dégats sont minimes");
+	var damageMap = getDamageMapForEnemies();
+	
+	//on prend la case accessible ayant le moins de dégats
+	var mpCost = getMP();
+	var leastDmg = 200000;
+	arrayIter(damageMap, function(key,value) {
+		if(safeCell == null){
+			var d = getCellDistanceFromThis(key);
+			if(value  >= leastDmg)
+				return;
+			if(d <= mpCost){
+				safeCell = key;
+				leastDmg = value;
+			}
+		}
+	});
+	debug("Case trouvée : " + safeCell + " - dmg : " + damageMap[safeCell]);
+	return safeCell;
+}
+
+/* function getNearestCellToHideFrom(leek) {
+	var targetCell = null;
+	var i = 0;
+	var obstacles = getNearestObstacles();
+	
+	var targetWeap = getWeapon(leek);
+	var targetPos = getCell(leek);
+	var tw_rng = getWeaponMaxRange(targetWeap);
+	
+
+	while(targetCell == null) {
+		var obstacle = obstacles[i];	
+		var obstacleX = getCellX(obstacle);
+		var obstacleY = getCellY(obstacle);
+
+		var enemyPos = getCell(leek);
+		var enemyPosX = getCellX(enemyPos);
+		var enemyPosY = getCellY(enemyPos);
+
+		var diffX = obstacleX - enemyPosX;
+		var diffY = obstacleY - enemyPosY;
+
+
+		var nearCells = [getRightCell(obstacle), getLeftCell(obstacle), getUpCell(obstacle), getDownCell(obstacle)];
+
+		mark(nearCells, COLOR_BLUE);
+
+		if(abs(diffX) > abs(diffY)) { //On se cache en X
+			if(diffX > 0) { //L'ennemi est vers la gauche : on se cache à droite
+				targetCell = getRightCell(obstacle);
+			} else {
+				targetCell = getLeftCell(obstacle);
+			}
+		} else { //on se cache en Y
+			if(diffY > 0) { //L'ennemi est vers le bas : on se cache en haut
+				targetCell = getUpCell(obstacle);
+			} else {
+				targetCell = getDownCell(obstacle);
+			}
+		}
+		if(targetCell != null) {
+			if(!isObstacle(targetCell)) {
+				break; //On a une case vide.
+			}
+		}
+		
+		i++;
+		
+		mark(nearCells, COLOR_RED);
+		
+		targetCell =  (i > 4 ? obstacles[0] : null);
+
+
+	}
+	mark(targetCell,COLOR_GREEN);
+	return targetCell;
+} */
+
+ 
+ 
+ 

@@ -1,0 +1,292 @@
+include('functions');
+
+/* Variables globales au combat */
+global me = getEntity()
+global CHIPS = getChips(me);
+global ENEMY = null;
+global WEAPONS = getWeapons(me);
+global CURRENT_ENEMY = null;
+global CURRENT_WEAPON = null;
+global _ME = null;
+global BULB = null;
+global BERSERK_TURN = MAX_TURNS - 20;
+global BERSERK_MODE = false;
+global HasAttacked = false;
+
+
+function updateEnemyInfo(enemy) {
+	ENEMY = [ enemy: ["CHIPS": getChips(enemy), "WEAPONS": getWeapons(enemy), "CURRENT_WEAPON": getWeapon(enemy)]];
+	debug(ENEMY);
+}
+
+function updateMyInfo() {
+	_ME = [ "me": ["CHIPS": getChips(), "WEAPONS": getWeapons(), "CURRENT_WEAPON": getWeapon(), "CURRENT_WEAPON_VAR" : CURRENT_WEAPON]];
+	debug(_ME);
+}
+
+function setTarget(enemy) {
+	if(enemy != CURRENT_ENEMY) {
+		debug("Changement de cible : " + getName(enemy));
+		lama();
+		CURRENT_ENEMY = enemy;
+		updateEnemyInfo(enemy);
+	}
+}
+
+function _setWeapon(weapon) {
+	if(weapon != CURRENT_WEAPON) {
+		debug("Changement d'arme' : " + getWeaponName(CURRENT_WEAPON));
+		CURRENT_WEAPON = weapon;
+		setWeapon(weapon);
+	}
+	
+	updateMyInfo();
+}
+
+function _useChip(Chip, target) {
+	var status;
+
+	if(not inArray(CHIPS,Chip)){
+		debugE("Utilisation d'un CHIP qui n'est pas équipé. " + getChipName(Chip));
+		return;
+	}
+
+	if(target == null) {
+		debugE("Target for _useChip is null.");
+		return false;
+	}
+
+	if(getChipCooldown(Chip) != 0){
+		return false;
+	}
+
+	if(getTP() < getChipCost(Chip))
+		return false;
+
+	if(not verifyLoS(getCell(), getCell(target), isInlineChip(Chip)))
+		return false;
+
+	var dist = getCellDistance(getCell(), getCell(target));
+	if(dist > Stuffs[Chip]["scope"]["max"] || dist < Stuffs[Chip]["scope"]["min"]) {
+		debugE("Tentative d'utilisation du chip hors-portée. Arrêt.");
+		return false;
+	}
+	status = useChip(Chip, target);
+	if(status != USE_SUCCESS && status != USE_CRITICAL) {
+		debugE("Erreur lors de l'utilisation du chip " + getChipName(Chip) + "  " + status);
+		return false;
+	}
+
+	return true;
+}
+
+function autoUseChip(chip) {
+	var chipName = getChipName(chip);
+	if(not inArray(CHIPS,chip)){
+		debugE("Utilisation d'un CHIP qui n'est pas équipé. " + chipName);
+		return false;
+	}
+	if(getTurn() >= 2){
+		if(getCooldown(chip) != 0)
+			return false;
+		if(getTP() < getChipCost(chip))
+			return false;
+		var st = useChip(chip,me);
+		if(st == USE_SUCCESS || st == USE_CRITICAL){
+			debug("Utilisation de " + chipName);
+			return true;
+		} else debugE("Utilisation du "+ chipName +" FAILED. " + st);
+	}
+	return false;
+}
+
+function mapEffects(effects, key) {
+	return arrayMap(effects, function(effect) {
+		return effect[key];
+	});
+}
+
+function getPartitionedChipEffects(chip, type) {
+	var effects = getChipEffects(chip);
+	return arrayPartition(effects, function(effect) {
+		return effect[EFFECT_TYPE] === type;
+	});
+}
+
+function getPartitionedWeaponEffects(weapon, type) {
+	var effects = getWeaponEffects(weapon);
+	return arrayPartition(effects, function(effect) {
+		debug(effect);
+		return effect[EFFECT_TYPE] === type;
+	});
+}
+
+function getEnemyMaxFirePower(enemy) {
+	
+	var weaponDmgs = arrayMap(getWeapons(enemy), function(weapon) {
+		var dmgChipEffects = getPartitionedWeaponEffects(weapon, EFFECT_DAMAGE)[0];
+		debug(dmgChipEffects);
+		return arrayMax(mapEffects(dmgChipEffects, EFFECT_MAX));
+	});
+	var chipDmgs = arrayMap(CHIPS, function(chip) {
+		var dmgChipEffects = getPartitionedChipEffects(chip, EFFECT_DAMAGE)[0];
+		return arrayMax(mapEffects(dmgChipEffects, EFFECT_MAX));
+	});
+	return arrayMax(arrayConcat(weaponDmgs, chipDmgs));
+}
+
+
+function getArmorChips(chips, dmg) {
+	
+	//No dmg: maybe better to do nothing
+	if(!dmg) {
+		debugW("Not armoring as dmg is null.");
+		return [];
+	}
+	
+	// Step 1 : Grabing only armor chips
+	var armorChips = arrayFilter(chips, function(chip) {
+		var effects = getChipEffects(chip);
+	
+		var types = mapEffects(effects,  EFFECT_TYPE);
+		
+		return count(arrayFilter(types, function(type) {
+			return type === EFFECT_ABSOLUTE_SHIELD || type === EFFECT_RELATIVE_SHIELD;
+		})) > 0;
+	});
+
+	// Step 2: gives back a sorted array based on efficacity
+	return arraySort(armorChips, function(chip1, chip2) {
+		var effects1 = getChipEffects(chip1);
+		var effects2 = getChipEffects(chip2);
+
+		var calc = function(effect) {
+			if(effect[EFFECT_TYPE] === EFFECT_ABSOLUTE_SHIELD) {
+				return computeDmgReductionFromShields(getRelativeShield(), effect[EFFECT_MAX], dmg);
+			}
+			else {
+				return computeDmgReductionFromShields(effect[EFFECT_MAX], getAbsoluteShield(), dmg);
+            }
+		};
+
+		var a = calc(effects1);
+		var b = calc(effects2);
+
+		return (a < b ? -1 : a == b ? 0 : 1);
+	});
+}
+
+function getHealChips(chips) {
+	var healChips = arrayFilter(chips, function(chip) {
+		var effects = getChipEffects(chip);
+		var types = mapEffects(effects,  EFFECT_TYPE);
+		
+		return count(arrayFilter(types, function(type) {
+			return type === EFFECT_HEAL;
+		})) > 0;
+	});
+
+	return arraySort(healChips, function(chip1, chip2) {
+		var a = getChipEffects(chip1)[0][EFFECT_MAX];
+		var b = getChipEffects(chip2)[0][EFFECT_MAX];
+
+		return (a < b ? -1 : a == b ? 0 : 1);
+	});
+}
+
+function ArmorUp() {
+	var dmg = getEnemyMaxFirePower(CURRENT_ENEMY);
+	debug("Damage:" + dmg);
+	var chips = getArmorChips(CHIPS, dmg);
+	for(var chip in chips) {
+		if(autoUseChip(chip)) break;
+	}
+}
+
+function Heal(leek) {
+	var missingLife = getTotalLife(leek) - getLife(leek);
+	var wisdom = getWisdom();
+	
+	var healChips = getHealChips(CHIPS);
+	
+	for(var chip in healChips) {
+		if(missingLife > computeHeal(Stuffs[chip]["heals"]["avg"],wisdom)){
+			return _useChip(chip,leek);
+		}
+	}
+	
+	return false;
+}
+
+
+function useChipLoop(Chip) {
+	var status;
+
+	var chipName = getChipName(Chip);
+	if(not inArray(getChips(),Chip)){
+		debugE("Utilisation d'un CHIP qui n'est pas équipé. " + chipName);
+		return;
+	}
+
+	if(not verifyLoS(getCell(), getCell(ENEMY), getChipLaunchType(Chip) === LAUNCH_TYPE_LINE))
+		return;
+
+
+	while(getTP() >= getChipCost(Chip)){
+		if(CURRENT_ENEMY == null)
+			setTarget(getNearestEnemy());
+
+		if(getChipCooldown(Chip) != 0){
+			return;
+		}
+		var dist = getCellDistance(getCell(), getCell(CURRENT_ENEMY));
+		if(dist > Stuffs[Chip]["scope"]["max"] || dist < Stuffs[Chip]["scope"]["min"]) {
+			debugE("Tentative d'utilisation du chip hors-portée. Arrêt.");
+			return;
+		}
+		status = useChip(Chip, CURRENT_ENEMY);
+		if(status != USE_SUCCESS && status != USE_CRITICAL) {
+			debugE("Erreur lors de l'utilisation du chip " + getChipName(Chip) + "  " + status);
+			return;
+		} else {
+			HasAttacked = true;
+		}
+	}
+}
+
+function useWeaponLoop(Weapon) {
+	var status;
+	
+	if(not inArray(getWeapons(),Weapon)){
+		debugE("Utilisation d'une ARME qui n'est pas équipé. " + getWeaponName(Weapon));
+		return false;
+	}
+
+	if(Weapon !== CURRENT_WEAPON) {
+		_setWeapon(Weapon);
+	}
+
+	while(getTP() >= getWeaponCost(Weapon)){
+		debug("GetTP = " + getTP() + " Weapon=" + Weapon + " " + getWeaponName(Weapon));
+		if(CURRENT_ENEMY == null){
+			debugE("Enemy not assigned in useWeaponLoop.");
+			return false;
+		}
+		if(isDead(CURRENT_ENEMY)){
+			debug("Enemy is dead, oof");
+			return false;
+		}
+
+		if(!canUseWeapon(Weapon, CURRENT_ENEMY)) {
+			debug("Can't use weapon. " + canUseWeapon(CURRENT_ENEMY, Weapon));
+			return false;
+		}
+
+		status = useWeapon(CURRENT_ENEMY);
+		if(status != USE_SUCCESS && status != USE_CRITICAL) {
+			debugE("Erreur lors de l'utilisation de l'arme principale " + status);
+			return false;
+		} 	
+	}
+	return true;
+}

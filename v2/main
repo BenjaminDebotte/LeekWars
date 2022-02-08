@@ -1,0 +1,105 @@
+/* 	IA v4    */
+/* Variables globales au combat */
+
+/* 
+ * TODO:
+ * - Gérer les diagonales
+ * - Se placer le plus loin possible dans les min damage
+ * - A-star ?
+ * */
+
+global FRIENDS = ["HomocycLeek", "Philibert", "Guiatch"];
+global MAIN_WEAPON = WEAPON_PISTOL;
+
+include("leek");
+include("bulb");
+
+function prepare() {
+	debug("prepare()");
+	setTarget(getNearestEnemy());
+}
+
+function beforeMoving() {
+	debug("beforeMoving()");
+}
+
+function move() {
+	debug("move()");
+	if(getTurn() < 3) {
+		debug("Moving toward " + getName(CURRENT_ENEMY));
+		moveToward(CURRENT_ENEMY, getMP());
+		return true;
+	}
+	if(!canUseWeapon(CURRENT_WEAPON, CURRENT_ENEMY)) {
+		moveTowardCells(getCellsToUseWeapon(CURRENT_WEAPON, CURRENT_ENEMY), getMP());
+	}
+	return true;
+}
+
+function afterMoving() {
+	debug("afterMoving()");
+
+}
+
+function beforeAttack() {
+	debug("beforeAttack()");
+	_setWeapon(MAIN_WEAPON);
+}
+
+function attack() {
+	debug("attack()");
+	useWeaponLoop(MAIN_WEAPON);
+	//if(CHIP_SPARK in getChips()) {
+		//useChipLoop(CHIP_SPARK);
+	//}
+
+}
+
+function afterAttack() {
+	debug("afterAttack()");
+	//ArmorUp();
+	//Heal(me);
+}
+function beforeFlee() {
+	debug("beforeFlee()");
+
+}
+
+function flee() {
+	debug("flee()");
+	moveTowardCell(getNearestCellToFlee());
+}
+
+function afterFlee() {
+	debug("afterFlee()");
+}
+
+function endOfTurn() {
+	debug("endOfTurn()");
+	//Heal(me);
+}
+
+function main() {
+	prepare();
+	
+	debug("ENEMY: " + ENEMY);
+	debug("ME: " + _ME);
+	
+	beforeMoving();
+	move();
+	afterMoving();
+	
+	beforeAttack();
+	attack();
+	afterAttack();
+	
+	beforeFlee();
+	flee();
+	afterFlee();
+	
+	endOfTurn();
+}
+
+/* Here we go */
+main();
+

@@ -1,0 +1,71 @@
+
+global bulb_cooldowns = [];
+global bulb = null; //Renvoi le bulbe
+include("functions");
+
+function bulb_Init() {
+	if(getTurn() == 1) {
+		bulb_cooldowns[CHIP_PROTEIN] = 0;
+		bulb_cooldowns[CHIP_HELMET] = 0;
+		bulb_cooldowns[CHIP_BANDAGE] = 0;
+	}
+}
+
+function autoUseBulbChips(chip, target) {
+	var chipName = getChipName(chip);
+	var st = 0;
+	if(getTurn() > 2){
+		if(bulb_cooldowns[chip] != 0)
+			return false;
+		if(getTP() < getChipCost(chip))
+			return false;
+		if(getCellDistance(getCell(bulb), getCell(target)) > getChipMaxRange(chip))
+			return false;
+		st = useChip(chip,target);
+		if(st == USE_SUCCESS || st == USE_CRITICAL){
+			bulb_cooldowns[chip] = getChipCooldown(chip);
+			debug("Utilisation de " + chipName);
+			return true;
+		} else debugE("Utilisation du "+ chipName +" FAILED. " + st);
+	}
+	return false;
+}
+
+
+
+function bulb_main() {
+	if(bulb == null)
+		bulb = getEntity();
+	
+	bulb_Init();
+	
+	var bulb_enemy = getNearestEnemy(); 
+	var bulb_pos = getCell();
+	var bulb_enemy_pos = getCell(bulb_enemy);
+	var enemy_dist = getCellDistance(bulb_pos, bulb_enemy_pos);
+	
+	while(enemy_dist > getChipMaxRange(CHIP_PEBBLE) && getMP() > 0) {
+		moveToward(bulb_enemy,1);
+		enemy_dist = getCellDistance(bulb_pos, bulb_enemy_pos);
+	}
+
+	debug("Tentative d'utilisation du chip");
+	if(enemy_dist <= getChipMaxRange(CHIP_PEBBLE)) {
+		debug("Ennemi à portée, vérification du champ de vision.");
+		if(verifyLoS(bulb_pos, bulb_enemy_pos, false)){
+			debug("Utilisation du CHIP_PEBBLE sur " + getName(bulb_enemy) + 
+			" - " + useChip(CHIP_PEBBLE, bulb_enemy));
+		} 
+	} else {
+		debugW("Ennemi trop distant : " + enemy_dist + " < " + getChipMaxRange(CHIP_PEBBLE));
+	}
+	
+	if(getLife(getNearestAlly()) < getTotalLife(getNearestAlly()) - 30) {
+		autoUseBulbChips(CHIP_BANDAGE, getNearestAlly());
+	}
+	if(!autoUseBulbChips(CHIP_HELMET, getNearestAlly()))
+		autoUseBulbChips(CHIP_HELMET, bulb);
+	if(!autoUseBulbChips(CHIP_PROTEIN, getNearestAlly()))
+		autoUseBulbChips(CHIP_PROTEIN, bulb);
+
+}
